@@ -10,10 +10,10 @@ on:
 
 jobs:
   release:
-    name: Release Charts
-    runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: write
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,45 +27,8 @@ jobs:
 
       - name: Install Helm
         uses: azure/setup-helm@v3
-        with:
-          version: latest
 
-      - name: Create Chart Releaser config
-        run: |
-          cat > cr.yaml << EOF
-          index-path: index.yaml
-          charts-repo: https://archsyscall.github.io/restart-operator
-          EOF
-
-      - name: Package Helm Charts
-        run: |
-          mkdir -p .cr-release-packages
-          mkdir -p .cr-index
-          helm package ./charts/restart-operator --destination .cr-release-packages
-          
-      - name: Create or Update gh-pages branch
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if git ls-remote --heads origin gh-pages | grep -q gh-pages; then
-            git checkout gh-pages
-          else
-            git checkout --orphan gh-pages
-            git rm -rf .
-            git commit --allow-empty -m "Initial gh-pages branch"
-            git push origin gh-pages
-            git checkout gh-pages
-          fi
-          
-          cp -R .cr-release-packages/*.tgz .
-          
-          if [ -f "index.yaml" ]; then
-            helm repo index --url https://archsyscall.github.io/restart-operator --merge index.yaml .
-          else
-            helm repo index --url https://archsyscall.github.io/restart-operator .
-          fi
-          
-          # Push changes
-          git add .
-          git commit -m "Update Helm chart repository" || echo "No changes to commit"
-          git push origin gh-pages
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
