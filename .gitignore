@@ -1,0 +1,51 @@
+# Claude settings
+**/.claude/settings.local.json
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Kubernetes Generated manifests
+config/crd/bases/
+config/rbac/role.yaml
+
+# Operator-SDK / Kubebuilder output
+bundle/
+bundle.Dockerfile
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Dependency directories (caches and vendored code)
+vendor/
+
+# Local development environment files
+.env
+.env.local
+.kube/
+
+# Build and package files
+restart-operator
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Debug logs
+*.log

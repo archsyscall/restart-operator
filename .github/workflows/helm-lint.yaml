@@ -1,0 +1,31 @@
+name: Helm Chart Lint
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'charts/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'charts/**'
+
+jobs:
+  lint:
+    name: Lint Helm Charts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: latest
+
+      - name: Lint Helm chart
+        run: helm lint ./charts/restart-operator
+
+      - name: Validate Helm chart
+        run: |
+          helm template ./charts/restart-operator --debug

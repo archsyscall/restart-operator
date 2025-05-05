@@ -1,0 +1,12 @@
+apiVersion: restart-operator.k8s/v1alpha1
+kind: RestartSchedule
+metadata:
+  name: deployment-restart-sample
+  namespace: default
+spec:
+  # Every minute (5 fields standard format: minute, hour, day of month, month, day of week)
+  schedule: "* * * * *"
+  targetRef:
+    kind: Deployment
+    name: example-deployment
+    # namespace: default  # Optional, defaults to the same namespace as RestartSchedule
