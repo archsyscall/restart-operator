@@ -1,0 +1,66 @@
+# Default values for restart-operator
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+image:
+  repository: archsyscall/restart-operator
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Settings for the operator
+operator:
+  # Restrict the operator to watch resources only in the specified namespace
+  # If empty, the operator will watch all namespaces
+  watchNamespace: ""
+  # Log level for the operator (debug, info, warn, error)
+  logLevel: "info"
+  # Enable leader election for high availability
+  leaderElection:
+    enabled: true
+    resourceName: "restart-operator-leader-election"
+  # Metrics configuration
+  metrics:
+    enabled: true
+    port: 8080
+  # Health probe configuration
+  healthProbe:
+    port: 8081
+
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true

@@ -1,0 +1,110 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: restartschedules.restart-operator.k8s
+  labels:
+    {{- include "restart-operator.labels" . | nindent 4 }}
+spec:
+  group: restart-operator.k8s
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - schedule
+                - targetRef
+              properties:
+                schedule:
+                  type: string
+                  description: "Schedule in Cron format"
+                  pattern: "^(\\d+|\\*)(/\\d+)?(\\s+(\\d+|\\*)(/\\d+)?){4}$"
+                targetRef:
+                  type: object
+                  required:
+                    - kind
+                    - name
+                  properties:
+                    kind:
+                      type: string
+                      description: "Kind of the target resource"
+                      enum:
+                        - Deployment
+                        - StatefulSet
+                        - DaemonSet
+                    name:
+                      type: string
+                      description: "Name of the target resource"
+                      minLength: 1
+                    namespace:
+                      type: string
+                      description: "Namespace of the target resource, defaults to the namespace of the RestartSchedule"
+            status:
+              type: object
+              properties:
+                lastSuccessfulTime:
+                  type: string
+                  format: date-time
+                  description: "The last time the resource was successfully restarted"
+                nextScheduledTime:
+                  type: string
+                  format: date-time
+                  description: "The next scheduled restart time"
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - type
+                      - status
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - "True"
+                          - "False"
+                          - "Unknown"
+                      observedGeneration:
+                        type: integer
+                        format: int64
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                      message:
+                        type: string
+          required:
+            - spec
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Target-Kind
+          type: string
+          jsonPath: .spec.targetRef.kind
+        - name: Target-Name
+          type: string
+          jsonPath: .spec.targetRef.name
+        - name: Schedule
+          type: string
+          jsonPath: .spec.schedule
+        - name: Last-Restart
+          type: string
+          jsonPath: .status.lastSuccessfulTime
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+  scope: Namespaced
+  names:
+    plural: restartschedules
+    singular: restartschedule
+    kind: RestartSchedule
+    shortNames:
+      - rs
